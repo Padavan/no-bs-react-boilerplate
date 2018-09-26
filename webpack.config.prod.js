@@ -3,13 +3,12 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  context: path.join(__dirname, 'app'),
+  mode: 'production',
   entry: {
     app: path.resolve(__dirname, 'app'),
-    vendor: ['react', 'react-dom'],
   },
   output: {
-    filename: '[name].bundle-[hash].js',
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
   },
@@ -19,6 +18,28 @@ module.exports = {
       'node_modules'
     ]
   },
+  performance: {
+    hints: 'warning',
+    maxAssetSize: 200000,
+  },
+  optimization: {
+    noEmitOnErrors: true,
+    nodeEnv: 'production',
+  },
+  stats: {
+    assets: true,
+    colors: true,
+    errors: true,
+    errorDetails: false,
+    hash: false
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './app/index.html',
+      inject: 'body',
+      filename: 'client.html'
+    }),
+  ],
   module: {
     rules: [
       {
@@ -29,57 +50,9 @@ module.exports = {
       },
       {
         test: /\.less$/,
-        use: ['style-loader', { loader: 'css-loader', options: { importLoaders: 1 } }, 'less-loader']
+        use: ['style-loader', 'css-loader', 'less-loader']
       },
-      {
-        test: /\.(png|jpg|gif)$/,
-        use: ['url-loader?limit=4096&name=[name].[ext]']
-      },
-      {
-        test: /\.(html|ico)$/,
-        use: ['file-loader?name=[name].[ext]']
-      },
-      {
-        test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "url-loader?limit=10000&mimetype=application/font-woff"
-      }, {
-        test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "url-loader?limit=10000&mimetype=application/font-woff"
-      }, {
-        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "url-loader?limit=10000&mimetype=application/octet-stream"
-      }, {
-        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "file-loader"
-      }, {
-        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "url-loader?limit=10000&mimetype=image/svg+xml"
-      }
+
     ]
-  },
-  devServer: {
-    historyApiFallback: true,
-    inline: true,
-  },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-        WEBPACK: true
-      }
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false
-      }
-    }),
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' }),
-    new HtmlWebpackPlugin({
-      template: './index.html',
-      inject: 'body',
-      filename: 'index.html'
-    }),
-  ],
-
-
+  }
 };
